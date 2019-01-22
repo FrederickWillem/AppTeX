@@ -1,0 +1,84 @@
+{
+  "_args": [
+    [
+      "mathjax-compact",
+      "/home/joep/Dropbox/AndroidStudio/MathJax-master"
+    ]
+  ],
+  "_from": "mathjax-compact@latest",
+  "_id": "mathjax-compact@2.7.3",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/mathjax-compact",
+  "_nodeVersion": "8.2.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/mathjax-compact-2.7.3.tgz_1502783133423_0.015573351411148906"
+  },
+  "_npmUser": {
+    "email": "hippospark@gmail.com",
+    "name": "ivarptr"
+  },
+  "_npmVersion": "5.3.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "mathjax-compact",
+    "raw": "mathjax-compact",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/mathjax-compact/-/mathjax-compact-2.7.3.tgz",
+  "_shasum": "e6175b70509e0dbe7739e930373d1701ca0cb3d6",
+  "_shrinkwrap": null,
+  "_spec": "mathjax-compact",
+  "_where": "/home/joep/Dropbox/AndroidStudio/MathJax-master",
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/ivarptr/mathjax-compact/issues"
+  },
+  "dependencies": {},
+  "description": "The compact version of MathJax.",
+  "devDependencies": {
+    "mathjax": "2.7.1"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-9fcgQkF8eGI/gyQAvZnat6822BMoe33BFLosI67z7Xj6yziDapDMN0gW4yhspsW5ud/6ldIIYRyHdUrEgfEeeA==",
+    "shasum": "e6175b70509e0dbe7739e930373d1701ca0cb3d6",
+    "tarball": "https://registry.npmjs.org/mathjax-compact/-/mathjax-compact-2.7.3.tgz"
+  },
+  "gitHead": "ac5c3ca3f1ef3846d8dbe22776949554faf1b324",
+  "homepage": "https://github.com/ivarptr/mathjax-compact",
+  "keywords": [
+    "asciimath",
+    "latex",
+    "math",
+    "mathjax",
+    "mathml",
+    "tex"
+  ],
+  "license": "Apache-2.0",
+  "main": "./MathJax.js",
+  "maintainers": [
+    {
+      "name": "ivarptr",
+      "email": "hippospark@gmail.com"
+    }
+  ],
+  "name": "mathjax-compact",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivarptr/mathjax-compact.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "2.7.3"
+}
