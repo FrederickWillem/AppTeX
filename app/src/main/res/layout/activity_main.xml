@@ -66,9 +66,10 @@
 
         <EditText
             android:id="@+id/latex_editText"
-            android:layout_width="292dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
+            android:autofillHints=""
             android:ems="10"
             android:inputType="textPersonName"
             android:text="@string/sample_latex"
@@ -96,6 +97,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:contentDescription="temorary feature"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

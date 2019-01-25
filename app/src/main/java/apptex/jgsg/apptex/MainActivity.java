@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return t;
     }
 
-    private int exampleIndex = 0;
     private WebView view;
     private String javascript = "javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);";
+    EditText editText;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -144,16 +144,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String base64 = url.substring(url.indexOf(","));
                 final byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
                 Bitmap bm  = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                bm = TeXEncoder.encodeInBitmap(bm, editText.getText().toString());
                 ((ImageView) findViewById(R.id.imgview)).setImageBitmap(bm);
             }
         });
 
-        EditText e = (EditText) findViewById(R.id.latex_editText);
-        e.setBackgroundColor(Color.LTGRAY);
-        e.setTextColor(Color.BLACK);
-        e.setText("");
-        Button b = (Button) findViewById(R.id.btn_go);
-        b.setOnClickListener(this);
+        editText = (EditText) findViewById(R.id.latex_editText);
+        editText.setBackgroundColor(Color.LTGRAY);
+        editText.setTextColor(Color.BLACK);
+        editText.setText("");
+        ((Button) findViewById(R.id.btn_go)).setOnClickListener(this);
         ((Button) findViewById(R.id.btn_save)).setOnClickListener(this);
     }
 }
