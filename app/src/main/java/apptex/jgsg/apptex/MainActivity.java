@@ -1,20 +1,30 @@
 package apptex.jgsg.apptex;
 
+import android.app.DownloadManager;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.DownloadListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -48,9 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v == findViewById(R.id.btn_go)) {
             EditText e = (EditText) findViewById(R.id.latex_editText);
-            loadURL("javascript:document.getElementById('math').innerHTML='$"
-                +doubleEscapeTeX(e.getText().toString())+"$';");
-            loadURL(javascript);
+            loadURL("javascript:setTeX('" +doubleEscapeTeX(e.getText().toString())+"');");
+        } else if(v == findViewById(R.id.btn_save)) {
+            loadURL("javascript:save();");
         }
         /*else if (v == findViewById(R.id.button3)) {
             WebView w = (WebView) findViewById(R.id.webview);
@@ -89,38 +99,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         view.getSettings().setJavaScriptEnabled(true);
         view.getSettings().setBuiltInZoomControls(true);
 
-        String url = "</style>"
+        String url = "<html><head>"
                 + "<script type='text/x-mathjax-config'>"
-                + "  MathJax.Hub.Config({" + "    showMathMenu: false,"
-                + "             jax: ['input/TeX','output/HTML-CSS', 'output/CommonHTML'],"
-                + "      extensions: ['tex2jax.js','MathMenu.js','MathZoom.js', 'CHTML-preview.js'],"
-                + "         tex2jax: { inlineMath: [ ['$','$'] ], processEscapes: true },"
-                + "             TeX: {" + "               extensions:['AMSmath.js','AMSsymbols.js',"
-                + "                           'noUndefined.js']" + "             }"
-                + "  });"
+                + "  MathJax.Hub.Config({showMathMenu: false,\n" +
+                "                jax: ['input/TeX','output/SVG'],\n" +
+                "                extensions: ['tex2jax.js','MathMenu.js','MathZoom.js', 'CHTML-preview.js'],\n" +
+                "                tex2jax: { inlineMath: [ ['$','$'] ], processEscapes: true },\n" +
+                "                TeX: {extensions:['AMSmath.js','AMSsymbols.js', 'noUndefined.js']}\n" +
+                "        });"
                 + "</script>"
-                + "<script type='text/javascript' src='file:///android_asset/MathJax/MathJax.js'>"
-                + "</script>"
+                + "<script type='text/javascript' src='file:///android_asset/MathJax/MathJax.js'></script>"
+                + "<script type='text/javascript' src='file:///android_asset/script.js'></script>"
+                + "<script type='text/javascript' src='file:///android_asset/rgbcolor.min.js'></script>"
+                + "<script type='text/javascript' src='file:///android_asset/canvg.min.js'></script>"
+                + "</head><body>"
                 + "<p style=\"line-height:1.5; padding: 16 16\" align=\"justify\">"
                 + "<span id='math'>";
 
         // Demo display equation
-        url += "This is a display equation: $$P=\\frac{F}{A}$$";
+        url += "$$P=\\frac{F}{A}$$";
 
-        url += "This is also an identical display equation with different format:\\[P=\\frac{F}{A}\\]";
+        //close tags and add canvas
+        url += "</span></p><div style='display:none;'><a id='link'>link</a><canvas id='canvas' style='width:100%; height:50%'></canvas></div>";
 
-        // equations aligned at equal sign
-        url += "You can also put aligned equations just like Latex:";
-        String align = "\\begin{aligned}"
-                + "F\\; &= P \\times A \\\\ "
-                + "&= 4000 \\times 0.2\\\\"
-                + "&= 800\\; \\text{N}\\end{aligned}";
-        url += align;
-
-        url += "This is an inline equation $\\sqrt{b^2-4ac}.$";
-
-        // Finally, must enclose the brackets
-        url += "</span></p>";
+        //end document
+        url += "</body></html>";
 
         view.loadDataWithBaseURL("http://bar", url, "text/html", "utf-8", "");
         view.setWebViewClient(new WebViewClient() {
@@ -132,11 +135,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        view.setDownloadListener(new DownloadListener() {
+
+            @Override
+            public void onDownloadStart(String url, String userAgent,
+                                        String contentDisposition, String mimetype,
+                                        long contentLength) {
+                String base64 = url.substring(url.indexOf(","));
+                final byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+                Bitmap bm  = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(bm);
+            }
+        });
+
         EditText e = (EditText) findViewById(R.id.latex_editText);
         e.setBackgroundColor(Color.LTGRAY);
         e.setTextColor(Color.BLACK);
         e.setText("");
         Button b = (Button) findViewById(R.id.btn_go);
         b.setOnClickListener(this);
+        ((Button) findViewById(R.id.btn_save)).setOnClickListener(this);
     }
 }
