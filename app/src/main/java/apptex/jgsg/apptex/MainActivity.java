@@ -26,6 +26,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private String doubleEscapeTeX(String s) {
@@ -145,6 +150,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 final byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
                 Bitmap bm  = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 bm = TeXEncoder.encodeInBitmap(bm, editText.getText().toString());
+                try {
+                    System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath());
+                    bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getFilesDir(), "test.png")));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 ((ImageView) findViewById(R.id.imgview)).setImageBitmap(bm);
             }
         });
@@ -155,5 +167,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editText.setText("");
         ((Button) findViewById(R.id.btn_go)).setOnClickListener(this);
         ((Button) findViewById(R.id.btn_save)).setOnClickListener(this);
+    }
+
+    public void share() {
+        
     }
 }
