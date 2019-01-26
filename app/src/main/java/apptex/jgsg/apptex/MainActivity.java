@@ -60,12 +60,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+    @Override
     public void onClick(View v) {
         if (v == findViewById(R.id.btn_go)) {
             EditText e = (EditText) findViewById(R.id.latex_editText);
             loadURL("javascript:setTeX('" +doubleEscapeTeX(e.getText().toString())+"');");
         } else if(v == findViewById(R.id.btn_save)) {
             loadURL("javascript:save();");
+        } else if (v == findViewById(R.id.btn_share)) {
+            share();
         }
         /*else if (v == findViewById(R.id.button3)) {
             WebView w = (WebView) findViewById(R.id.webview);
@@ -157,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
 
-                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(bm);
+                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(getFilesDir() + "/test.png"));
             }
         });
 
@@ -170,6 +173,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void share() {
-        
+        final Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("image/png");
+        final File pic = new File(getFilesDir(), "test.png");
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pic));
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 }
