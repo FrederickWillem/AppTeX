@@ -1,7 +1,10 @@
 package apptex.jgsg.apptex;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -11,6 +14,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -33,16 +38,6 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String doubleEscapeTeX(String s) {
-        String t="";
-        for (int i=0; i < s.length(); i++) {
-            if (s.charAt(i) == '\'') t += '\\';
-            if (s.charAt(i) != '\n') t += s.charAt(i);
-            if (s.charAt(i) == '\\') t += "\\";
-        }
-        return t;
-    }
-
     private WebView view;
     private String javascript = "javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);";
     EditText editText;
@@ -64,9 +59,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v == findViewById(R.id.btn_go)) {
             EditText e = (EditText) findViewById(R.id.latex_editText);
-            loadURL("javascript:setTeX('" +doubleEscapeTeX(e.getText().toString())+"');");
-        } else if(v == findViewById(R.id.btn_save)) {
-            loadURL("javascript:save();");
+            loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(e.getText().toString()) + "');");
+        } else if (v == findViewById(R.id.btn_save)) {
+            PermissionHandler.doWithPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionHandler.PermissionRequestListener() {
+                @Override
+                public void onPermissionPreviouslyDenied() {
+                    //TODO: show a dialog explaining the permission.
+                }
+
+                @Override
+                public void onPermissionDisabled() {
+                    Toast.makeText(view.getContext(), "Please provide permission to write to the external storage.", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onPermissionGranted() {
+                    loadURL("javascript:save();");
+                }
+            });
         } else if (v == findViewById(R.id.btn_share)) {
             share();
         }
@@ -88,6 +98,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     +"\\\\]';");
             w.loadUrl("javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);");
         }*/
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        PermissionHandler.handlePermissionRequestResult(requestCode, grantResults);
     }
 
     public void loadURL(String str) {
@@ -154,13 +169,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Bitmap bm  = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 bm = TeXEncoder.encodeInBitmap(bm, editText.getText().toString());
                 try {
-                    System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath());
-                    bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getFilesDir(), "test.png")));
+                    System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath() + " : " + getFilesDir());
+                    //bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getFilesDir(), "test.png")));
+                    bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test.png")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(getFilesDir() + "/test.png"));
+                //((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(getFilesDir() + "/test.png"));
+                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/test.png"));
             }
         });
 
