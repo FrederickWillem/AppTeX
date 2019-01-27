@@ -2,7 +2,9 @@ package apptex.jgsg.apptex;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,9 +14,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -65,11 +69,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onPermissionPreviouslyDenied() {
                     //TODO: show a dialog explaining the permission.
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage(R.string.save_permission_text)
+                            .setPositiveButton(R.string.settings, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    intent.setData(Uri.fromParts("package", getPackageName(), null));
+                                    startActivity(intent);
+                                }
+                            }).setNegativeButton(R.string.dont_save, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(view.getContext(), "Saving cancelled.", Toast.LENGTH_SHORT).show();
+                        }
+                    }).create().show();
                 }
 
                 @Override
                 public void onPermissionDisabled() {
-                    Toast.makeText(view.getContext(), "Please provide permission to write to the external storage.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(view.getContext(), R.string.save_permission_disabled, Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -80,24 +100,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (v == findViewById(R.id.btn_share)) {
             share();
         }
-        /*else if (v == findViewById(R.id.button3)) {
-            WebView w = (WebView) findViewById(R.id.webview);
-            EditText e = (EditText) findViewById(R.id.edit);
-            e.setText("");
-            w.loadUrl("javascript:document.getElementById('math').innerHTML='';");
-            w.loadUrl("javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);");
-        }
-        else if (v == findViewById(R.id.button4)) {
-            WebView w = (WebView) findViewById(R.id.webview);
-            EditText e = (EditText) findViewById(R.id.edit);
-            e.setText(getExample(exampleIndex++));
-            if (exampleIndex > getResources().getStringArray(R.array.tex_examples).length-1)
-                exampleIndex=0;
-            w.loadUrl("javascript:document.getElementById('math').innerHTML='\\\\["
-                    +doubleEscapeTeX(e.getText().toString())
-                    +"\\\\]';");
-            w.loadUrl("javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);");
-        }*/
     }
 
     @Override

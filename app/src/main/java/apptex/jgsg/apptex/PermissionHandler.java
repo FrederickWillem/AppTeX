@@ -1,13 +1,11 @@
 package apptex.jgsg.apptex;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +49,7 @@ public class PermissionHandler {
                 if (isFirstTimeAskingPermission(activity, permission)) {
                     //it actually is the first time, so now the first-time flag is set to false.
                     firstTimeAskingPermission(activity, permission, false);
-                    int id = permission.hashCode();
+                    int id = permission.hashCode()%65535; //can only use lower 16 bits
                     requestPermission(activity, permission, id);
                     listenerMap.put(id, listener);
                 } else {
