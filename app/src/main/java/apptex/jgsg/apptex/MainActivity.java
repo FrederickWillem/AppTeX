@@ -14,12 +14,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -173,13 +175,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath() + " : " + getFilesDir());
                     //bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getFilesDir(), "test.png")));
-                    bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test.png")));
+                    bm.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "test.png")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
+                System.out.println(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/test.png");
                 //((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(getFilesDir() + "/test.png"));
-                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/test.png"));
+                ((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/test.png"));
             }
         });
 
@@ -194,8 +197,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void share() {
         final Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("image/png");
-        final File pic = new File(getFilesDir(), "test.png");
-        sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pic));
+        File path = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        System.out.println(path);
+        File pic = new File(path, "test.png");
+
+        Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", pic);
+        sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 }
