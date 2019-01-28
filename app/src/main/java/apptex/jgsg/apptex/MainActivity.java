@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -48,80 +49,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String javascript = "javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);";
     EditText editText;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                default:
-                    return true;
-            }
-            //return false;
-        }
-    };
-
-    @Override
-    public void onClick(View v) {
-        if (v == findViewById(R.id.btn_go)) {
-            EditText e = (EditText) findViewById(R.id.latex_editText);
-            loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(e.getText().toString()) + "');");
-        } else if (v == findViewById(R.id.btn_save)) {
-            PermissionHandler.doWithPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionHandler.PermissionRequestListener() {
-                @Override
-                public void onPermissionPreviouslyDenied() {
-                    //TODO: show a dialog explaining the permission.
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setMessage(R.string.save_permission_text)
-                            .setPositiveButton(R.string.settings, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent();
-                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                    intent.setData(Uri.fromParts("package", getPackageName(), null));
-                                    startActivity(intent);
-                                }
-                            }).setNegativeButton(R.string.dont_save, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(view.getContext(), "Saving cancelled.", Toast.LENGTH_SHORT).show();
-                        }
-                    }).create().show();
-                }
-
-                @Override
-                public void onPermissionDisabled() {
-                    Toast.makeText(view.getContext(), R.string.save_permission_disabled, Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onPermissionGranted() {
-                    loadURL("javascript:save();");
-                }
-            });
-        } else if (v == findViewById(R.id.btn_share)) {
-            share();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        PermissionHandler.handlePermissionRequestResult(requestCode, grantResults);
-    }
-
-    public void loadURL(String str) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            view.loadUrl(str);
-        } else {
-            view.evaluateJavascript(str, null);
-        }
-    }
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.fragment_create);
         view = (WebView) findViewById(R.id.webview);
         view.getSettings().setJavaScriptEnabled(true);
         view.getSettings().setBuiltInZoomControls(true);
@@ -190,8 +122,89 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editText.setBackgroundColor(Color.LTGRAY);
         editText.setTextColor(Color.BLACK);
         editText.setText("");
-        ((Button) findViewById(R.id.btn_go)).setOnClickListener(this);
-        ((Button) findViewById(R.id.btn_save)).setOnClickListener(this);
+
+        setContentView(R.layout.activity_main);
+        BottomNavigationView bottomNav = findViewById(R.id.navigation);
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+    }
+
+    private BottomNavigationView.OnNavigationItemSelectedListener navListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment selected = null;
+            switch (item.getItemId()) {
+                case R.id.navigation_create:
+                    selected = new CreateFragment();
+                    break;
+                case R.id.navigation_import_export:
+                    selected = new ImportExportFragment();
+                    break;
+                default:
+                    return true;
+            };
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selected).commit();
+            return true;
+        }
+    };
+
+    @Override
+    public void onClick(View v) {
+        if (v == findViewById(R.id.btn_go)) {
+            View inflatedView = getLayoutInflater().inflate(R.layout.fragment_create, null);
+            EditText e = (EditText) inflatedView.findViewById(R.id.latex_editText);
+            loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(e.getText().toString()) + "');");
+        } else if (v == findViewById(R.id.btn_save)) {
+            PermissionHandler.doWithPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionHandler.PermissionRequestListener() {
+                @Override
+                public void onPermissionPreviouslyDenied() {
+                    //TODO: show a dialog explaining the permission.
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage(R.string.save_permission_text)
+                            .setPositiveButton(R.string.settings, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    intent.setData(Uri.fromParts("package", getPackageName(), null));
+                                    startActivity(intent);
+                                }
+                            }).setNegativeButton(R.string.dont_save, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(view.getContext(), "Saving cancelled.", Toast.LENGTH_SHORT).show();
+                        }
+                    }).create().show();
+                }
+
+                @Override
+                public void onPermissionDisabled() {
+                    Toast.makeText(view.getContext(), R.string.save_permission_disabled, Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onPermissionGranted() {
+                    loadURL("javascript:save();");
+                }
+            });
+        } else if (v == findViewById(R.id.btn_share)) {
+            share();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        PermissionHandler.handlePermissionRequestResult(requestCode, grantResults);
+    }
+
+    public void loadURL(String str) {
+        System.out.println("Now evaluating " + str);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            view.loadUrl(str);
+        } else {
+            view.evaluateJavascript(str, null);
+        }
     }
 
     public void share() {
