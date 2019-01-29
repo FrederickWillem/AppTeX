@@ -42,9 +42,12 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final int INPUT_MODE_TEX=0, INPUT_MODE_NORMAL=1;
+
     private WebView view;
     private String javascript = "javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);";
     EditText editText;
+    private int inputMode = INPUT_MODE_TEX;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -62,8 +65,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v == findViewById(R.id.btn_go)) {
-            EditText e = (EditText) findViewById(R.id.latex_editText);
-            loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(e.getText().toString()) + "');");
+            String text = ((EditText) findViewById(R.id.latex_editText)).getText().toString();
+            if(inputMode == INPUT_MODE_NORMAL)
+                text = Parser.normalToTex(text);
+            loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(text) + "');");
         } else if (v == findViewById(R.id.btn_save)) {
             PermissionHandler.doWithPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionHandler.PermissionRequestListener() {
                 @Override
@@ -99,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
         } else if (v == findViewById(R.id.btn_share)) {
             share();
+        } else if(v== findViewById(R.id.btn_inputmode)) {
+            inputMode = (inputMode+1)%2;
+            ((TextView) findViewById(R.id.textView)).setText(inputMode == INPUT_MODE_TEX ? R.string.enter_latex : R.string.enter_normal);
         }
     }
 

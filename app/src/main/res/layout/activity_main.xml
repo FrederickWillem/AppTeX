@@ -15,24 +15,44 @@
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textView"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:gravity="center_horizontal|center_vertical"
-            android:text="@string/enter_latex"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="24dp" />
+            android:layout_height="wrap_content"
+            android:layout_weight="0">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/enter_latex"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btn_inputmode"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btn_inputmode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@android:drawable/ic_media_play" />
+        </android.support.constraint.ConstraintLayout>
 
         <EditText
             android:id="@+id/latex_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight=".3"
-            android:autofillHints=""
             android:ems="10"
             android:inputType="textMultiLine|text"
             android:text="@string/sample_latex"
@@ -52,23 +72,25 @@
 
             <Button
                 android:id="@+id/btn_go"
-                android:layout_width="61dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="3"
                 android:text="@string/go"
                 tools:layout_editor_absoluteX="272dp"
                 tools:layout_editor_absoluteY="63dp" />
 
             <Button
                 android:id="@+id/btn_save"
-                android:layout_width="63dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="3"
                 android:text="@string/save" />
 
             <Button
                 android:id="@+id/btn_share"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:onClick="onClick"
                 android:text="@string/share" />
 

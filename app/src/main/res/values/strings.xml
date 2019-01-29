@@ -8,6 +8,7 @@
 
     <!-- create -->
     <string name="enter_latex">Enter latex code:</string>
+    <string name="enter_normal">Enter math expression:</string>
 
     <string name="go">Go!</string>
     <string name="save">Save</string>

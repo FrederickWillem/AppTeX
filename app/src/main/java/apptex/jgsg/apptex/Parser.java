@@ -11,4 +11,9 @@ public class Parser {
         }
         return t;
     }
+
+    public static String normalToTex(String str) {
+        String tex= "";
+
+    }
 }
