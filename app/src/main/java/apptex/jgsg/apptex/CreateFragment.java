@@ -26,7 +26,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -34,8 +36,11 @@ import java.io.FileOutputStream;
 
 public class CreateFragment extends Fragment {
 
+    private static final int INPUT_MODE_TEX = 0, INPUT_MODE_NORMAL = 1;
     private WebView view;
     private String javascript = "javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);";
+    private int inputMode = INPUT_MODE_TEX;
+
 
     @Nullable
     @Override
@@ -44,20 +49,22 @@ public class CreateFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View newView, Bundle savedInstanceState) {
+    public void onViewCreated(final View newView, Bundle savedInstanceState) {
         final Activity context = getActivity();
 
         view = (WebView) newView.findViewById(R.id.webview);
         view.getSettings().setJavaScriptEnabled(true);
         view.getSettings().setBuiltInZoomControls(true);
 
-        final View temp = newView;
         Button goBtn = (Button) newView.findViewById(R.id.btn_go);
         goBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText e = (EditText) temp.findViewById(R.id.latex_editText);
-                loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(e.getText().toString()) + "');");
+                String str = ((EditText) newView.findViewById(R.id.latex_editText)).getText().toString();
+                if(inputMode == INPUT_MODE_NORMAL)
+                    str = new Parser(str).normalToTeX();
+                loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(str) + "');");
+                loadURL("javascript:document.getElementById('tex').innerHTML = '" + Parser.doubleEscapeTeX(str) + "'");
             }
         });
 
@@ -82,14 +89,14 @@ public class CreateFragment extends Fragment {
                                 }).setNegativeButton(R.string.dont_save, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(temp.getContext(), "Saving cancelled.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(newView.getContext(), "Saving cancelled.", Toast.LENGTH_SHORT).show();
                             }
                         }).create().show();
                     }
 
                     @Override
                     public void onPermissionDisabled() {
-                        Toast.makeText(temp.getContext(), R.string.save_permission_disabled, Toast.LENGTH_LONG).show();
+                        Toast.makeText(newView.getContext(), R.string.save_permission_disabled, Toast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -105,6 +112,15 @@ public class CreateFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 share();
+            }
+        });
+
+        ImageButton inputModeBtn = newView.findViewById(R.id.btn_switchMode);
+        inputModeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                inputMode = (1+inputMode)%2;
+                ((TextView) newView.findViewById(R.id.textView)).setText(inputMode == INPUT_MODE_NORMAL ? R.string.enter_normal : R.string.enter_latex);
             }
         });
 
@@ -130,6 +146,8 @@ public class CreateFragment extends Fragment {
 
         //close tags and add canvas
         url += "</span></p><div style='display:none;'><a id='link'>link</a><canvas id='canvas' style='width:100%; height:50%'></canvas></div>";
+
+        url += "<p id='tex'></p>";
 
         //end document
         url += "</body></html>";
@@ -170,7 +188,7 @@ public class CreateFragment extends Fragment {
 
                 System.out.println(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/test.png");
                 //((ImageView) findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(getFilesDir() + "/test.png"));
-                ((ImageView) temp.findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/test.png"));
+                ((ImageView) newView.findViewById(R.id.imgview)).setImageBitmap(BitmapFactory.decodeFile(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/test.png"));
             }
         });
 

@@ -11,6 +11,7 @@ public class TeXEncoder {
         int height = original.getHeight()+10;
         Bitmap bm = Bitmap.createBitmap(original.getWidth(), height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bm);
+        canvas.drawColor(Color.WHITE);
         canvas.drawBitmap(original, 0, 0, null);
 
         Paint p = new Paint();
