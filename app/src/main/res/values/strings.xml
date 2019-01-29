@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <resources>
     <string name="app_name">AppTeX</string>
     <string name="title_home">Home</string>
@@ -19,3 +20,26 @@
     <string name="dont_save">Don\'t save</string>
     <string name="save_permission_disabled">Please provide permission to write to the external storage.</string>
 </resources>
+=======
+<resources>
+    <string name="app_name">AppTeX</string>
+    <string name="title_create">Create</string>
+    <string name="title_import_export">Import/Share</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="sample_latex">\\frac{1}{\\sqrt{x}}</string>
+
+    <!-- create -->
+    <string name="enter_latex">Enter latex code:</string>
+
+    <string name="go">Go!</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+
+    <string name="save_permission_text">The permission to access your device\'s storage was denied. In order to save this formula, please provide that access using the settings for this app.</string>
+    <string name="settings">Settings</string>
+    <string name="dont_save">Don\'t save</string>
+    <string name="save_permission_disabled">Please provide permission to write to the external storage.</string>
+
+</resources>
+>>>>>>> master
