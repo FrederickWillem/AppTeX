@@ -52,7 +52,6 @@
                 android:id="@+id/btn_go"
                 android:layout_width="61dp"
                 android:layout_height="wrap_content"
-                android:onClick="onClick"
                 android:text="@string/go"
                 tools:layout_editor_absoluteX="272dp"
                 tools:layout_editor_absoluteY="63dp" />
@@ -61,7 +60,6 @@
                 android:id="@+id/btn_save"
                 android:layout_width="63dp"
                 android:layout_height="wrap_content"
-                android:onClick="onClick"
                 android:text="@string/save" />
 
             <Button
@@ -69,7 +67,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="onClick"
                 android:text="@string/share" />
 
         </LinearLayout>
