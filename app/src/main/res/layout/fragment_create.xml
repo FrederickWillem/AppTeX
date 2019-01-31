@@ -50,6 +50,7 @@
             android:ems="10"
             android:inputType="textMultiLine|text"
             android:text="@string/sample_latex"
+            android:paddingLeft="8dp"
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="56dp" />
 
