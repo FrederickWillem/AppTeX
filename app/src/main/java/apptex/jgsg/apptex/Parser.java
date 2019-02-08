@@ -1,7 +1,6 @@
 package apptex.jgsg.apptex;
 
 import java.util.ArrayList;
-import java.util.function.ToDoubleBiFunction;
 
 public class Parser {
 
@@ -18,12 +17,16 @@ public class Parser {
     int pos = -1, ch = -1;
     String expr;
     boolean inHashTag = false, inColon = false, inBar = false;
+    private static final String[] symbols = {"alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu", "nu", "xi", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega",
+            "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Pi", "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega",
+            "varrho", "varepsilon", "vartheta", "varphi", "nabla", "Box", "Re", "Im", "emptyset", "cdots", "equiv", "approx", "infty", "partial", "hbar", "times"};
+
 
     public Parser(String s) {
         expr = s;
     }
 
-    public String normalToTeX() {
+    public String toLatex() {
         nextChar();
         String s = "";
         while(pos < expr.length())
@@ -52,7 +55,7 @@ public class Parser {
             if (ch == ']') count--;
             nextChar();
         }
-        return new VectorParser("[" + expr.substring(position, pos)).normalToTeX();
+        return new VectorParser("[" + expr.substring(position, pos)).toLatex();
     }
 
     /**
@@ -92,6 +95,8 @@ public class Parser {
                 s += "+" + processTerm();
             else if (consume('-'))
                 s += "-" + processTerm();
+            else if(ch == '=')
+                s += processExpression();
             else
                 return s;
         }
@@ -103,9 +108,23 @@ public class Parser {
         while (true) {
             if (consume('*'))
                 s += "\\cdot " + processFactor();
-            else if (consume('/'))
-                s = "\\frac{" + s + "}{" + processFactor() + "}";
-            else if (pos < expr.length())
+            else if (consume('/')) {
+                String s2 = processFactor();
+                //Remove brackets from s and s2
+                if(s.startsWith("(") && s.endsWith(")"))
+                    s = s.substring(1, s.length()-1).trim();
+                if(s2.startsWith("(") && s2.endsWith(")"))
+                    s2 = s2.substring(1, s2.length()-1).trim();
+
+                if(s.startsWith("del") && s2.startsWith("del")) {
+                    s = "\\partial " + s.substring(3);
+                    s2 = "\\partial " + s2.substring(3);
+                } else if(s.charAt(0)=='d' && s2.charAt(0)=='d') {
+                    s = "\\mathrm{d}" + s.substring(1);
+                    s2 = "\\mathrm{d}" + s2.substring(1);
+                }
+                s = "\\frac{" + s + "}{" + s2 + "}";
+            } else if (pos < expr.length() && Character.isLetter(ch))
                 s += processFactor();
             else
                 return s;
@@ -125,41 +144,44 @@ public class Parser {
         int p = pos;
 
         if (consume('(')) { // new expression within the parentheses
-            String s2 = processExpression();
-            if (s2.contains("\\frac{") || s2.contains("pmatrix"))
+            //String s2 = processExpression();
+            String s2 = new Parser(getEndOfBrackets()).toLatex();
+            if (s2.contains("frac{") || s2.contains("pmatrix"))
                 s = "\\left(" + s2 + "\\right)";
             else
                 s = "(" + s2 + ")";
-            consume(')');
-        } else if(consume(')') || consume(']'))
-            return s;
+        }
         else if (consume('[')) {
             s = getVector();
         } else if (consume('|')) {
-            String s2 = processExpression();
-            if (s2.contains("\\frac{") || s2.contains("pmatrix"))
+            String s2 = new Parser(substringTo('|')).toLatex();
+            if (s2.contains("frac{") || s2.contains("pmatrix"))
                 s = "\\left|" + s2 + "\\right|";
             else
                 s = "|" + s2 + "|";
-            consume('|');
         } else if(consume('#')) {
             int i = expr.indexOf('#', pos);
             if(i==-1) {
                 s = "\\mathrm{" + expr.substring(p + 1, p + 2) + "}";
-                pos++;
+                nextChar();
             } else {
                 s = "\\mathrm{" + expr.substring(p+1, i) + "}";
-                pos = i+1;
+                pos = i;
+                nextChar();
             }
         }else if(consume(':')) {
             int i = expr.indexOf(':', pos);
             if(i==-1) {
                 s = "\\mathbf{" + expr.substring(p + 1, p + 2) + "}";
-                pos++;
+                nextChar();
             } else {
                 s = "\\mathbf{" + expr.substring(p+1, i) + "}";
-                pos = i+1;
+                pos = i;
+                nextChar();
             }
+        } else if(consume('$')) {
+            s = "\\mathbb{"+(char)ch+"}";
+            nextChar();
         } else if ((ch >= '0' && ch <= '9') || ch == '.') {// number
             while ((ch >= '0' && ch <= '9') || ch == '.')
                 nextChar();
@@ -167,11 +189,57 @@ public class Parser {
             if (consume('E'))
                 s += "e" + processFactor();
             // Letter, which is part of a variable or function
+        } else if(consume('=')) {
+            if (consume('>'))
+                s += "\\geq ";
+            else if (consume('<'))
+                s += "\\leq ";
+            else if (consume('='))
+                s += "\\equiv ";
+            else {
+                String s2 = (pos+2 > expr.length() ? "" : expr.substring(pos, pos + 2));
+                if (s2.equals("~=")) {
+                    s += "\\approx ";
+                    pos += 1;
+                    nextChar();
+                } else if (s2.equals("/=")) {
+                    s += "\\neq ";
+                    pos += 1;
+                    nextChar();
+                } else
+                    s += "=";
+            }
+            s += processExpression();
+        } else if(consume('>')) {
+            if (consume('>'))
+                s += "\\gg ";
+            else
+                s += ">";
+            s += processExpression();
+        } else if(consume('<')) {
+            if(consume('<'))
+                s += "\\ll ";
+            else
+                s += "<";
+            s += processExpression();
         } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
-            while ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' || ch >= '0' && ch <= '9')
+            while ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' || ch >= '0' && ch <= '9' || ch=='\'')
                 nextChar();
             String letters = expr.substring(p, pos);
             switch (letters) {
+                case "cross":
+                    s = "\\times";
+                    break;
+                case "dot":
+                    s += "\\cdot";
+                    break;
+                case "div":
+                case "grad":
+                case "curl":
+                    s = "\\mathrm{" + letters + "}";
+                    if(ch!='(')
+                        s += "\\,";
+                    break;
                 case "sin":
                 case "cos":
                 case "tan":
@@ -182,7 +250,7 @@ public class Parser {
                     break;
                 case "sqrt":
                     consume('(');
-                    String s2 = new Parser(getEndOfBrackets()).normalToTeX();
+                    String s2 = new Parser(getEndOfBrackets()).toLatex();
                     s = "\\sqrt{" + s2 + "}";
                     break;
                 case "int":
@@ -192,13 +260,14 @@ public class Parser {
                         String args[] = getArguments();
                         s = "\\int ";
                         if(args.length >= 3)
-                            s += "\\limits_{" + new Parser(args[0]).normalToTeX() + "}";
+                            s += "\\limits_{" + new Parser(args[0]).toLatex() + "}";
                         if(args.length >= 4)
-                            s += "^{" + new Parser(args[1]).normalToTeX() + "}";
+                            s += "^{" + new Parser(args[1]).toLatex() + "}";
                         if(args.length>=2)
-                            s += new Parser(args[args.length-2]).normalToTeX() + "\\," + (new Parser(args[args.length-1]).normalToTeX()).replaceFirst("d", "\\\\mathrm{d}");
+                            s += new Parser(args[args.length-2]).toLatex() + "\\," + (new Parser(args[args.length-1]).toLatex()).replaceFirst("d", "\\\\mathrm{d}");
                         else
-                            s += new Parser(args[0]).normalToTeX();
+                            s += new Parser(args[0]).toLatex();
+                        consume(')');
                     }
                     break;
                 case "prod":
@@ -209,17 +278,21 @@ public class Parser {
                         String args[] = getArguments();
                         s = "\\" + letters + " ";
                         if(args.length >= 2)
-                            s += "\\limits_{" + new Parser(args[0]).normalToTeX() + "}";
+                            s += "\\limits_{" + new Parser(args[0]).toLatex() + "}";
                         if(args.length >= 3)
-                            s += "^{" + new Parser(args[1]).normalToTeX() + "}";
-                        s += new Parser(args[args.length-1]).normalToTeX();
+                            s += "^{" + new Parser(args[1]).toLatex() + "}";
+                        s += new Parser(args[args.length-1]).toLatex();
                     }
                     break;
-                case "infty":
-                    s = "\\infty";
-                    break;
                 default:
-                    s += letters;
+                    for(String symb : symbols) {
+                        if (letters.equals(symb)) {
+                            s += "\\" + symb;
+                            break;
+                        }
+                    }
+                    if(s=="")
+                        s += letters;
                     break;
             }
         } else {
@@ -232,6 +305,20 @@ public class Parser {
         if (consume('%'))
             s = "\\Mod{" + processFactor() + "}";
         return s;
+    }
+
+    private String substringTo(char c) {
+        int count = 0, position = pos;
+        while(count >= 0) {
+            nextChar();
+            if(ch == -1)
+                return expr.substring(position);
+            if(count==0 && ch==(int) c)
+                break;
+            count += (ch == '(' || ch == '{' || ch == '[' ? 1 : (ch == ')' || ch == '}' || ch == ']' ? -1 : 0));
+        }
+        nextChar(); //move on to the next character after the found character.
+        return expr.substring(position, pos-1); //-1 because of nextChar() the line above
     }
 
     private String getEndOfBrackets() {
@@ -261,7 +348,7 @@ public class Parser {
             else if(ch==')' || ch==']' || ch=='}')
                 brCount--;
         }
-        arguments.add(expr.substring(lastPos).trim());
+        arguments.add(expr.substring(lastPos, pos).trim());
         String[] args = new String[arguments.size()];
         return arguments.toArray(args);
     }
@@ -315,7 +402,7 @@ public class Parser {
         }
 
         @Override
-        public String normalToTeX () {
+        public String toLatex () {
             boolean vector = !exprContainsNotInVector(';');
             nextChar();
             String v = "\\begin{pmatrix}";
@@ -329,16 +416,16 @@ public class Parser {
                     brCount--;
                 else if(brCount==0) {
                     if (ch == ',') {
-                        v += (new Parser(expr.substring(p, pos))).normalToTeX() + (vector ? "\\\\" : "&");
+                        v += (new Parser(expr.substring(p, pos))).toLatex() + (vector ? "\\\\" : "&");
                         p = pos + 1;
                     } else if (ch == ';') {
-                        v += (new Parser(expr.substring(p, pos))).normalToTeX() + "\\\\";
+                        v += (new Parser(expr.substring(p, pos))).toLatex() + "\\\\";
                         p = pos + 1;
                     }
                 }
                 nextChar();
             }
-            v += new Parser(expr.substring(p, pos)).normalToTeX();
+            v += new Parser(expr.substring(p, pos)).toLatex();
             return v + "\\end{pmatrix}";
         }
     }

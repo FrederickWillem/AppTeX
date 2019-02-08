@@ -39,8 +39,7 @@ public class CreateFragment extends Fragment {
     private static final int INPUT_MODE_TEX = 0, INPUT_MODE_NORMAL = 1;
     private WebView view;
     private String javascript = "javascript:MathJax.Hub.Queue(['Typeset',MathJax.Hub]);";
-    private int inputMode = INPUT_MODE_TEX;
-
+    private int inputMode = INPUT_MODE_NORMAL;
 
     @Nullable
     @Override
@@ -62,7 +61,7 @@ public class CreateFragment extends Fragment {
             public void onClick(View v) {
                 String str = ((EditText) newView.findViewById(R.id.latex_editText)).getText().toString();
                 if(inputMode == INPUT_MODE_NORMAL)
-                    str = new Parser(str).normalToTeX();
+                    str = new Parser(str).toLatex();
                 loadURL("javascript:setTeX('" + Parser.doubleEscapeTeX(str) + "');");
                 loadURL("javascript:document.getElementById('tex').innerHTML = '" + Parser.doubleEscapeTeX(str) + "'");
             }

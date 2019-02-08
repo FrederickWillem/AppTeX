@@ -6,6 +6,7 @@
     <string name="title_notifications">Notifications</string>
 
     <string name="sample_latex">\\frac{1}{\\sqrt{x}}</string>
+    <string name="sample_normal">sin(n*pi/l x)^2</string>
 
     <!-- create -->
     <string name="enter_latex">Enter latex code:</string>

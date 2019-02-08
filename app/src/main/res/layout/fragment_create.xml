@@ -27,7 +27,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal|center_vertical"
-                android:text="@string/enter_latex"
+                android:text="@string/enter_normal"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:layout_editor_absoluteY="24dp" />
@@ -49,8 +49,8 @@
             android:autofillHints=""
             android:ems="10"
             android:inputType="textMultiLine|text"
-            android:text="@string/sample_latex"
             android:paddingLeft="8dp"
+            android:text="@string/sample_normal"
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="56dp" />
 
