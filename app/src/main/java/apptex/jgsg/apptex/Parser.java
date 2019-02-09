@@ -228,10 +228,10 @@ public class Parser {
             String letters = expr.substring(p, pos);
             switch (letters) {
                 case "cross":
-                    s = "\\times";
+                    s = "\\times ";
                     break;
                 case "dot":
-                    s += "\\cdot";
+                    s += "\\cdot ";
                     break;
                 case "div":
                 case "grad":
@@ -287,12 +287,16 @@ public class Parser {
                 default:
                     for(String symb : symbols) {
                         if (letters.equals(symb)) {
-                            s += "\\" + symb;
+                            s += "\\" + symb + " ";
                             break;
                         }
                     }
                     if(s=="")
                         s += letters;
+                    while(ch==' ') {
+                        s += ' ';
+                        nextChar();
+                    }
                     break;
             }
         } else {

@@ -34,10 +34,12 @@
 
             <ImageButton
                 android:id="@+id/btn_switchMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="fill_parent"
                 android:layout_weight="0"
-                tools:srcCompat="@drawable/ic_import_export_black_24dp" />
+                android:scaleType="centerInside"
+                android:src="@drawable/switch_mode_icon"
+                tools:srcCompat="@drawable/switchMode" />
         </LinearLayout>
 
 
