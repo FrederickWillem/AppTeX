@@ -39,7 +39,7 @@
                 android:layout_weight="0"
                 android:scaleType="centerInside"
                 android:src="@drawable/switch_mode_icon"
-                tools:srcCompat="@drawable/switchMode" />
+                tools:srcCompat="@drawable/switch_mode_icon" />
         </LinearLayout>
 
 

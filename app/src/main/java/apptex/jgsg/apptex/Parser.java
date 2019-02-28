@@ -150,8 +150,9 @@ public class Parser {
                 s = "\\left(" + s2 + "\\right)";
             else
                 s = "(" + s2 + ")";
-        }
-        else if (consume('[')) {
+        } if(consume('{')) {
+            s += "{" + new Parser(getEndOfBrackets()).toLatex() + "}";
+        } else if (consume('[')) {
             s = getVector();
         } else if (consume('|')) {
             String s2 = new Parser(substringTo('|')).toLatex();
@@ -222,8 +223,8 @@ public class Parser {
             else
                 s += "<";
             s += processExpression();
-        } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') {
-            while ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' || ch >= '0' && ch <= '9' || ch=='\'')
+        } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+            while ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch >= '0' && ch <= '9' || ch=='\'')
                 nextChar();
             String letters = expr.substring(p, pos);
             switch (letters) {
@@ -304,6 +305,8 @@ public class Parser {
             nextChar();
         }
 
+        if(consume('_'))
+            s += "_{" + processFactor() + "}";
         if (consume('^'))
             s += "^{" + processFactor() + "}";
         if (consume('%'))
